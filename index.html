@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEON STUDY BOARD</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Orbitron:wght@400;700;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --deep-purple: #1a0b2e;
+            --dark-purple: #2d1b4e;
+            --neon-purple: #9d4edd;
+            --neon-cyan: #00f5ff;
+            --neon-pink: #ff006e;
+            --neon-green: #39ff14;
+            --neon-orange: #ff9100;
+            --text-primary: #e0e0e0;
+            --text-dim: #888;
+            --glass-bg: rgba(45, 27, 78, 0.4);
+            --glass-border: rgba(157, 78, 221, 0.3);
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--deep-purple);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* خلفية متحركة */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(157, 78, 221, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 245, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(255, 0, 110, 0.08) 0%, transparent 50%);
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: 
+                linear-gradient(rgba(157, 78, 221, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(157, 78, 221, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        /* الهيدر */
+        header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+            background: rgba(26, 11, 46, 0.8);
+            backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 900;
+            background: linear-gradient(45deg, var(--neon-purple), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(157, 78, 221, 0.5);
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+        }
+
+        .stat-number {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            color: var(--neon-cyan);
+        }
+
+        /* الأزرار */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--neon-purple), var(--neon-pink));
+            color: white;
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(157, 78, 221, 0.6);
+        }
+
+        .btn-cyan {
+            background: transparent;
+            border: 2px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+        }
+
+        .btn-cyan:hover {
+            background: var(--neon-cyan);
+            color: var(--deep-purple);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.4);
+        }
+
+        /* تبويبات العرض */
+        .view-tabs {
+            display: flex;
+            gap: 10px;
+            padding: 20px;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            padding: 10px 24px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-dim);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .tab-btn.active {
+            background: var(--neon-purple);
+            color: white;
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.4);
+        }
+
+        /* البورد */
+        .board-container {
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            min-height: 60vh;
+        }
+
+        .column {
+            min-width: 300px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .column-title {
+            font-weight: 700;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .column-count {
+            background: var(--neon-purple);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* الكروت */
+        .task-card {
+            background: rgba(26, 11, 46, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: grab;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--card-color, var(--neon-purple));
+            box-shadow: 0 0 10px var(--card-color, var(--neon-purple));
+        }
+
+        .task-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border-color: var(--card-color, var(--neon-purple));
+        }
+
+        .task-card.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .task-subject {
+            font-size: 12px;
+            color: var(--card-color, var(--neon-purple));
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .task-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        .task-priority {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .priority-high {
+            background: rgba(255, 0, 110, 0.2);
+            color: var(--neon-pink);
+            border: 1px solid var(--neon-pink);
+        }
+
+        .priority-medium {
+            background: rgba(255, 145, 0, 0.2);
+            color: var(--neon-orange);
+            border: 1px solid var(--neon-orange);
+        }
+
+        .priority-low {
+            background: rgba(0, 245, 255, 0.2);
+            color: var(--neon-cyan);
+            border: 1px solid var(--neon-cyan);
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .task-btn {
+            flex: 1;
+            padding: 6px;
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            color: var(--text-dim);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+
+        .task-btn:hover {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+        }
+
+        .task-btn.delete:hover {
+            border-color: var(--neon-pink);
+            color: var(--neon-pink);
+        }
+
+        /* المودال */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--dark-purple);
+            border: 1px solid var(--neon-purple);
+            border-radius: 16px;
+            padding: 32px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 0 50px rgba(157, 78, 221, 0.3);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 900;
+            margin-bottom: 24px;
+            color: var(--neon-cyan);
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(26, 11, 46, 0.8);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 245, 255, 0.2);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .modal-actions .btn {
+            flex: 1;
+        }
+
+        /* عرض القائمة */
+        .list-view {
+            display: none;
+            padding: 20px;
+        }
+
+        .list-view.active {
+            display: block;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .list-item:hover {
+            border-color: var(--neon-purple);
+            transform: translateX(-5px);
+        }
+
+        .list-color {
+            width: 4px;
+            height: 50px;
+            border-radius: 4px;
+            background: var(--card-color, var(--neon-purple));
+            box-shadow: 0 0 10px var(--card-color, var(--neon-purple));
+        }
+
+        .list-content {
+            flex: 1;
+        }
+
+        .list-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .list-meta {
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        .list-status {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-backlog {
+            background: rgba(136, 136, 136, 0.2);
+            color: var(--text-dim);
+        }
+
+        .status-progress {
+            background: rgba(255, 145, 0, 0.2);
+            color: var(--neon-orange);
+        }
+
+        .status-review {
+            background: rgba(0, 245, 255, 0.2);
+            color: var(--neon-cyan);
+        }
+
+        .status-done {
+            background: rgba(57, 255, 20, 0.2);
+            color: var(--neon-green);
+        }
+
+        /* التقويم */
+        .calendar-view {
+            display: none;
+            padding: 20px;
+        }
+
+        .calendar-view.active {
+            display: block;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .calendar-header {
+            text-align: center;
+            padding: 16px;
+            font-weight: 700;
+            color: var(--neon-purple);
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .calendar-day:hover {
+            border-color: var(--neon-cyan);
+        }
+
+        .calendar-day.has-tasks {
+            border-color: var(--neon-purple);
+            box-shadow: 0 0 10px rgba(157, 78, 221, 0.2);
+        }
+
+        .day-number {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .day-tasks {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            display: flex;
+            gap: 2px;
+        }
+
+        .task-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--neon-cyan);
+            box-shadow: 0 0 5px var(--neon-cyan);
+        }
+
+        /* شريط التقدم */
+        .progress-section {
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .progress-card {
+            flex: 1;
+            min-width: 200px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .progress-title {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-bottom: 12px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(26, 11, 46, 0.8);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-purple), var(--neon-cyan));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(157, 78, 221, 0.5);
+        }
+
+        .progress-text {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            color: var(--neon-cyan);
+        }
+
+        /* تصميم متجاوب */
+        @media (max-width: 768px) {
+            .board-container {
+                flex-direction: column;
+            }
+
+            .column {
+                min-width: 100%;
+            }
+
+            .stats-bar {
+                flex-wrap: wrap;
+            }
+
+            .calendar-grid {
+                gap: 4px;
+            }
+
+            .calendar-day {
+                padding: 4px;
+            }
+        }
+
+        /* تأثيرات خاصة */
+        .glow-text {
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .neon-border {
+            position: relative;
+        }
+
+        .neon-border::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--neon-purple), var(--neon-cyan), var(--neon-pink));
+            border-radius: inherit;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .neon-border:hover::after {
+            opacity: 0.5;
+        }
+
+        /* تأثير التحميل */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--glass-border);
+            border-top-color: var(--neon-cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* رسالة النجاح */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            background: var(--dark-purple);
+            border: 1px solid var(--neon-green);
+            border-radius: 12px;
+            color: var(--neon-green);
+            font-weight: 600;
+            z-index: 2000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    <div class="grid-overlay"></div>
+
+    <header>
+        <div class="logo">⚡ NEON STUDY BOARD</div>
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span>📚</span>
+                <span>المواد: <span class="stat-number" id="totalSubjects">5</span></span>
+            </div>
+            <div class="stat-item">
+                <span>✅</span>
+                <span>منجز: <span class="stat-number" id="doneTasks">0</span></span>
+            </div>
+            <div class="stat-item">
+                <span>⏰</span>
+                <span>متبقي: <span class="stat-number" id="pendingTasks">0</span></span>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="openModal()">+ مهمة جديدة</button>
+    </header>
+
+    <div class="view-tabs">
+        <button class="tab-btn active" onclick="switchView('board')">📋 Board</button>
+        <button class="tab-btn" onclick="switchView('list')">📑 List</button>
+        <button class="tab-btn" onclick="switchView('calendar')">📅 Calendar</button>
+    </div>
+
+    <!-- شريط التقدم -->
+    <div class="progress-section">
+        <div class="progress-card">
+            <div class="progress-title">إجمالي التقدم</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="totalProgress" style="width: 0%"></div>
+            </div>
+            <div class="progress-text" id="totalProgressText">0%</div>
+        </div>
+        <div class="progress-card">
+            <div class="progress-title">رياضيات</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="mathProgress" style="width: 0%"></div>
+            </div>
+            <div class="progress-text" id="mathProgressText">0%</div>
+        </div>
+        <div class="progress-card">
+            <div class="progress-title">فيزياء</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="physicsProgress" style="width: 0%"></div>
+            </div>
+            <div class="progress-text" id="physicsProgressText">0%</div>
+        </div>
+        <div class="progress-card">
+            <div class="progress-title">كيمياء</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="chemProgress" style="width: 0%"></div>
+            </div>
+            <div class="progress-text" id="chemProgressText">0%</div>
+        </div>
+        <div class="progress-card">
+            <div class="progress-title">إنجليزي</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="engProgress" style="width: 0%"></div>
+            </div>
+            <div class="progress-text" id="engProgressText">0%</div>
+        </div>
+    </div>
+
+    <!-- عرض البورد -->
+    <div class="board-container" id="boardView">
+        <div class="column" data-status="backlog">
+            <div class="column-header">
+                <div class="column-title">
+                    <span>🔴</span>
+                    <span>مراكم</span>
+                </div>
+                <span class="column-count" id="backlogCount">0</span>
+            </div>
+            <div class="tasks-container" id="backlogTasks"></div>
+        </div>
+
+        <div class="column" data-status="progress">
+            <div class="column-header">
+                <div class="column-title">
+                    <span>🟡</span>
+                    <span>قيد التنفيذ</span>
+                </div>
+                <span class="column-count" id="progressCount">0</span>
+            </div>
+            <div class="tasks-container" id="progressTasks"></div>
+        </div>
+
+        <div class="column" data-status="review">
+            <div class="column-header">
+                <div class="column-title">
+                    <span>🔵</span>
+                    <span>مراجعة/واجب</span>
+                </div>
+                <span class="column-count" id="reviewCount">0</span>
+            </div>
+            <div class="tasks-container" id="reviewTasks"></div>
+        </div>
+
+        <div class="column" data-status="done">
+            <div class="column-header">
+                <div class="column-title">
+                    <span>🟢</span>
+                    <span>تم الإنجاز</span>
+                </div>
+                <span class="column-count" id="doneCount">0</span>
+            </div>
+            <div class="tasks-container" id="doneTasks"></div>
+        </div>
+    </div>
+
+    <!-- عرض القائمة -->
+    <div class="list-view" id="listView"></div>
+
+    <!-- عرض التقويم -->
+    <div class="calendar-view" id="calendarView">
+        <div class="calendar-grid" id="calendarGrid"></div>
+    </div>
+
+    <!-- المودال -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <div class="modal-title">⚡ مهمة جديدة</div>
+            <form id="taskForm">
+                <div class="form-group">
+                    <label class="form-label">المادة</label>
+                    <select class="form-select" id="taskSubject" required>
+                        <option value="math">رياضيات</option>
+                        <option value="physics">فيزياء</option>
+                        <option value="chemistry">كيمياء</option>
+                        <option value="arabic">عربي</option>
+                        <option value="english">إنجليزي</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">عنوان المهمة</label>
+                    <input type="text" class="form-input" id="taskTitle" placeholder="مثال: حل واجب الصفحة 45" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">الوصف</label>
+                    <textarea class="form-textarea" id="taskDesc" placeholder="تفاصيل المهمة..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">الأولوية</label>
+                    <select class="form-select" id="taskPriority">
+                        <option value="high">🔴 عالية</option>
+                        <option value="medium">🟡 متوسطة</option>
+                        <option value="low">🔵 منخفضة</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">تاريخ الاستحقاق</label>
+                    <input type="date" class="form-input" id="taskDueDate">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-cyan" onclick="closeModal()">إلغاء</button>
+                    <button type="submit" class="btn btn-primary">حفظ المهمة</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- رسالة النجاح -->
+    <div class="toast" id="toast">✅ تم الحفظ بنجاح!</div>
+
+    <script>
+        // بيانات Supabase
+        const SUPABASE_URL = 'https://kyicrwofshahpdnrueqa.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_SdYEDou-u69Vb4v23seRfA_AjeBE3Gk';
+
+        // ألوان المواد
+        const subjectColors = {
+            math: '#9d4edd',
+            physics: '#00f5ff',
+            chemistry: '#39ff14',
+            arabic: '#ff9100',
+            english: '#ff006e'
+        };
+
+        const subjectNames = {
+            math: 'رياضيات',
+            physics: 'فيزياء',
+            chemistry: 'كيمياء',
+            arabic: 'عربي',
+            english: 'إنجليزي'
+        };
+
+        // المهام الافتراضية (من بيانات المستخدم)
+        let tasks = [
+            // رياضيات - مراكم 2 حصة، في الحصة 4
+            { id: 1, subject: 'math', title: 'الحصة 1 - مراجعة', desc: 'تسجيل الحصة الأولى المراكمة', status: 'backlog', priority: 'high', dueDate: '2025-09-20' },
+            { id: 2, subject: 'math', title: 'الحصة 2 - مراجعة', desc: 'تسجيل الحصة الثانية المراكمة', status: 'backlog', priority: 'high', dueDate: '2025-09-20' },
+            { id: 3, subject: 'math', title: 'الحصة 3 - مراجعة', desc: 'تسجيل الحصة الثالثة', status: 'progress', priority: 'medium', dueDate: '2025-09-21' },
+            { id: 4, subject: 'math', title: 'الحصة 4 - حل الواجب', desc: 'حل تكليفات الحصة الرابعة', status: 'progress', priority: 'high', dueDate: '2025-09-22' },
+
+            // كيمياء - مراكم 2 حصة، في الحصة 1
+            { id: 5, subject: 'chemistry', title: 'الحصة 1 - مراجعة', desc: 'تسجيل الحصة الأولى المراكمة', status: 'backlog', priority: 'high', dueDate: '2025-09-20' },
+            { id: 6, subject: 'chemistry', title: 'الحصة 2 - مراجعة', desc: 'تسجيل الحصة الثانية المراكمة', status: 'backlog', priority: 'high', dueDate: '2025-09-20' },
+            { id: 7, subject: 'chemistry', title: 'الحصة 3 - مراجعة', desc: 'الحصة الحالية', status: 'progress', priority: 'medium', dueDate: '2025-09-21' },
+
+            // فيزياء - مراكم 2 حصة، خلص الحصة 2
+            { id: 8, subject: 'physics', title: 'الحصة 1 - مراجعة', desc: 'تسجيل الحصة الأولى المراكمة', status: 'backlog', priority: 'high', dueDate: '2025-09-20' },
+            { id: 9, subject: 'physics', title: 'الحصة 2 - مراجعة', desc: 'تسجيل الحصة الثانية المراكمة', status: 'backlog', priority: 'high', dueDate: '2025-09-20' },
+            { id: 10, subject: 'physics', title: 'الحصة 3 - واجب', desc: 'حل واجب الحصة الثالثة', status: 'review', priority: 'high', dueDate: '2025-09-21' },
+            { id: 11, subject: 'physics', title: 'امتحان فيزياء', desc: 'امتحان على الحصص 1-3', status: 'review', priority: 'high', dueDate: '2025-09-22' },
+
+            // عربي - مش مراكم، في الحصة 3
+            { id: 12, subject: 'arabic', title: 'الحصة 3 - مراجعة', desc: 'الحصة الحالية', status: 'progress', priority: 'medium', dueDate: '2025-09-21' },
+
+            // إنجليزي - مراكم 3-4 حصص
+            { id: 13, subject: 'english', title: 'الحصة 1 - مراجعة', desc: 'ما فتحتهوش أصلاً', status: 'backlog', priority: 'high', dueDate: '2025-09-20' },
+            { id: 14, subject: 'english', title: 'الحصة 2 - مراجعة', desc: 'ما فتحتهوش أصلاً', status: 'backlog', priority: 'high', dueDate: '2025-09-20' },
+            { id: 15, subject: 'english', title: 'الحصة 3 - مراجعة', desc: 'ما فتحتهوش أصلاً', status: 'backlog', priority: 'high', dueDate: '2025-09-21' },
+            { id: 16, subject: 'english', title: 'الحصة 4 - مراجعة', desc: 'ما فتحتهوش أصلاً', status: 'backlog', priority: 'medium', dueDate: '2025-09-22' }
+        ];
+
+        let currentView = 'board';
+        let draggedTask = null;
+
+        // تهيئة التطبيق
+        function init() {
+            renderTasks();
+            renderListView();
+            renderCalendar();
+            updateStats();
+            updateProgress();
+            setupDragAndDrop();
+        }
+
+        // عرض المهام في البورد
+        function renderTasks() {
+            const containers = {
+                backlog: document.getElementById('backlogTasks'),
+                progress: document.getElementById('progressTasks'),
+                review: document.getElementById('reviewTasks'),
+                done: document.getElementById('doneTasks')
+            };
+
+            // تفريغ الحاويات
+            Object.values(containers).forEach(container => container.innerHTML = '');
+
+            // عرض المهام
+            tasks.forEach(task => {
+                const card = createTaskCard(task);
+                containers[task.status].appendChild(card);
+            });
+
+            // تحديث العدادات
+            updateCounts();
+        }
+
+        // إنشاء كارت المهمة
+        function createTaskCard(task) {
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            card.draggable = true;
+            card.dataset.id = task.id;
+            card.style.setProperty('--card-color', subjectColors[task.subject]);
+
+            card.innerHTML = `
+                <div class="task-subject">${subjectNames[task.subject]}</div>
+                <div class="task-title">${task.title}</div>
+                ${task.desc ? `<div style="font-size: 12px; color: var(--text-dim); margin-bottom: 8px;">${task.desc}</div>` : ''}
+                <div class="task-meta">
+                    <span>${task.dueDate || 'بدون تاريخ'}</span>
+                    <span class="task-priority priority-${task.priority}">
+                        ${task.priority === 'high' ? '🔴 عالية' : task.priority === 'medium' ? '🟡 متوسطة' : '🔵 منخفضة'}
+                    </span>
+                </div>
+                <div class="task-actions">
+                    <button class="task-btn" onclick="moveTask(${task.id}, 'progress')">▶️ ابدأ</button>
+                    <button class="task-btn" onclick="moveTask(${task.id}, 'done')">✅ تم</button>
+                    <button class="task-btn delete" onclick="deleteTask(${task.id})">🗑️</button>
+                </div>
+            `;
+
+            // أحداث السحب
+            card.addEventListener('dragstart', (e) => {
+                draggedTask = task.id;
+                card.classList.add('dragging');
+            });
+
+            card.addEventListener('dragend', () => {
+                card.classList.remove('dragging');
+            });
+
+            return card;
+        }
+
+        // إعداد السحب والإفلات
+        function setupDragAndDrop() {
+            const columns = document.querySelectorAll('.column');
+
+            columns.forEach(column => {
+                column.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+
+                column.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const status = column.dataset.status;
+                    if (draggedTask) {
+                        moveTask(draggedTask, status);
+                        draggedTask = null;
+                    }
+                });
+            });
+        }
+
+        // نقل المهمة
+        function moveTask(id, newStatus) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.status = newStatus;
+                renderTasks();
+                renderListView();
+                updateStats();
+                updateProgress();
+                showToast(`تم نقل "${task.title}" ✓`);
+            }
+        }
+
+        // حذف المهمة
+        function deleteTask(id) {
+            if (confirm('متأكد من الحذف؟')) {
+                tasks = tasks.filter(t => t.id !== id);
+                renderTasks();
+                renderListView();
+                updateStats();
+                updateProgress();
+                showToast('تم الحذف');
+            }
+        }
+
+        // عرض القائمة
+        function renderListView() {
+            const container = document.getElementById('listView');
+            container.innerHTML = '';
+
+            const statusNames = {
+                backlog: '🔴 مراكم',
+                progress: '🟡 قيد التنفيذ',
+                review: '🔵 مراجعة/واجب',
+                done: '🟢 تم الإنجاز'
+            };
+
+            tasks.forEach(task => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.style.setProperty('--card-color', subjectColors[task.subject]);
+
+                item.innerHTML = `
+                    <div class="list-color"></div>
+                    <div class="list-content">
+                        <div class="list-title">${task.title}</div>
+                        <div class="list-meta">${subjectNames[task.subject]} • ${task.dueDate || 'بدون تاريخ'}</div>
+                    </div>
+                    <span class="list-status status-${task.status}">${statusNames[task.status]}</span>
+                    <button class="task-btn delete" onclick="deleteTask(${task.id})">🗑️</button>
+                `;
+
+                container.appendChild(item);
+            });
+        }
+
+        // عرض التقويم
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+
+            // أيام الأسبوع
+            const days = ['أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
+            days.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'calendar-header';
+                header.textContent = day;
+                grid.appendChild(header);
+            });
+
+            // أيام الشهر (مثال: سبتمبر 2025)
+            const daysInMonth = 30;
+            const firstDay = 1; // يوم 1 سبتمبر 2025 هو يوم إثنين
+
+            for (let i = 0; i < firstDay; i++) {
+                const empty = document.createElement('div');
+                grid.appendChild(empty);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+
+                const dateStr = `2025-09-${day.toString().padStart(2, '0')}`;
+                const dayTasks = tasks.filter(t => t.dueDate === dateStr);
+
+                if (dayTasks.length > 0) {
+                    dayElement.classList.add('has-tasks');
+                }
+
+                dayElement.innerHTML = `
+                    <div class="day-number">${day}</div>
+                    <div class="day-tasks">
+                        ${dayTasks.slice(0, 3).map(t => `<div class="task-dot" style="background: ${subjectColors[t.subject]}"></div>`).join('')}
+                    </div>
+                `;
+
+                grid.appendChild(dayElement);
+            }
+        }
+
+        // تحديث الإحصائيات
+        function updateStats() {
+            const done = tasks.filter(t => t.status === 'done').length;
+            const pending = tasks.length - done;
+
+            document.getElementById('doneTasks').textContent = done;
+            document.getElementById('pendingTasks').textContent = pending;
+            document.getElementById('totalSubjects').textContent = new Set(tasks.map(t => t.subject)).size;
+        }
+
+        // تحديث العدادات
+        function updateCounts() {
+            const counts = {
+                backlog: tasks.filter(t => t.status === 'backlog').length,
+                progress: tasks.filter(t => t.status === 'progress').length,
+                review: tasks.filter(t => t.status === 'review').length,
+                done: tasks.filter(t => t.status === 'done').length
+            };
+
+            document.getElementById('backlogCount').textContent = counts.backlog;
+            document.getElementById('progressCount').textContent = counts.progress;
+            document.getElementById('reviewCount').textContent = counts.review;
+            document.getElementById('doneCount').textContent = counts.done;
+        }
+
+        // تحديث شريط التقدم
+        function updateProgress() {
+            const total = tasks.length;
+            const done = tasks.filter(t => t.status === 'done').length;
+            const totalPercent = total > 0 ? Math.round((done / total) * 100) : 0;
+
+            document.getElementById('totalProgress').style.width = totalPercent + '%';
+            document.getElementById('totalProgressText').textContent = totalPercent + '%';
+
+            // تقدم كل مادة
+            ['math', 'physics', 'chemistry', 'english'].forEach(subject => {
+                const subjectTasks = tasks.filter(t => t.subject === subject);
+                const subjectDone = subjectTasks.filter(t => t.status === 'done').length;
+                const percent = subjectTasks.length > 0 ? Math.round((subjectDone / subjectTasks.length) * 100) : 0;
+
+                const progressId = subject + 'Progress';
+                const textId = subject + 'ProgressText';
+
+                if (document.getElementById(progressId)) {
+                    document.getElementById(progressId).style.width = percent + '%';
+                    document.getElementById(textId).textContent = percent + '%';
+                }
+            });
+        }
+
+        // تبديل العرض
+        function switchView(view) {
+            currentView = view;
+
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.getElementById('boardView').style.display = view === 'board' ? 'flex' : 'none';
+            document.getElementById('listView').classList.toggle('active', view === 'list');
+            document.getElementById('calendarView').classList.toggle('active', view === 'calendar');
+        }
+
+        // فتح المودال
+        function openModal() {
+            document.getElementById('taskModal').classList.add('active');
+        }
+
+        // إغلاق المودال
+        function closeModal() {
+            document.getElementById('taskModal').classList.remove('active');
+            document.getElementById('taskForm').reset();
+        }
+
+        // إضافة مهمة جديدة
+        document.getElementById('taskForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const newTask = {
+                id: Date.now(),
+                subject: document.getElementById('taskSubject').value,
+                title: document.getElementById('taskTitle').value,
+                desc: document.getElementById('taskDesc').value,
+                priority: document.getElementById('taskPriority').value,
+                dueDate: document.getElementById('taskDueDate').value,
+                status: 'backlog'
+            };
+
+            tasks.push(newTask);
+            renderTasks();
+            renderListView();
+            renderCalendar();
+            updateStats();
+            updateProgress();
+            closeModal();
+            showToast('تم إضافة المهمة بنجاح! ⚡');
+        });
+
+        // عرض رسالة
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // إغلاق المودال عند الضغط خارج المحتوى
+        document.getElementById('taskModal').addEventListener('click', (e) => {
+            if (e.target.id === 'taskModal') {
+                closeModal();
+            }
+        });
+
+        // تشغيل التطبيق
+        init();
+    </script>
+</body>
+</html>
